@@ -40,7 +40,7 @@ class LearningStyleScore(models.Model):
     verbal_score = models.IntegerField()
     sequential_score = models.IntegerField()
     global_score = models.IntegerField()
-    updated_at = models.DateField()
+    updated_at = models.DateField(auto_now=True)
 
     def highest_score(self):
         scores = {
