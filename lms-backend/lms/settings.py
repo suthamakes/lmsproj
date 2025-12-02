@@ -44,12 +44,17 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'users',
-    'courses'
+    'courses',
+    'allauth',             
+    'allauth.account',     
+    'auth_kit',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -139,3 +144,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  #for dev only
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'auth_kit.authentication.JWTCookieAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),     
+    "ROTATE_REFRESH_TOKENS": True,                  
+    "BLACKLIST_AFTER_ROTATION": True,               
+}
+
+
