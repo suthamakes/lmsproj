@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 # from courses.models import ContentItem
 
 
@@ -13,7 +14,7 @@ class User(models.Model):
     password = models.CharField(('password'), max_length=128)
     role = models.CharField(max_length=50, choices=USER_TYPE_CHOICES, default='Student')  # user or teacher
     department = models.CharField(max_length=100, null=True)  # department necessary if user is teacher
-    date_joined = models.DateField()
+    date_joined = models.DateField(default=timezone.localdate)
     first_sign_up = models.BooleanField(default=False)
 
     def __str__(self):
@@ -26,8 +27,11 @@ class ILSResponse(models.Model):
         ('b', 'B')
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    question_number = models.IntegerField()  # 1 to 44
-    answer = models.CharField(max_length=2, choices=ANSWER_CHOICES)
+    answers = models.JSONField(default=list)  # {"1": "a", "2": "b", ..., "44": "b"}
+    submitted_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"ILSResponse for {self.user.username}"
 
 
 class LearningStyleScore(models.Model):
@@ -54,11 +58,12 @@ class LearningStyleScore(models.Model):
             "global": self.global_score,
         }
 
-        style = map(scores, key=scores.get)
-        return style, scores[style]
+        best = max(scores, key=scores.get)
+        return best, scores[best]
 
     def __str__(self):
-        return f"{self.user.username} : {self.highest_score(self)}"
+        style, value = self.highest_score()
+        return f"{self.user.username} : {style} ({value})"
 
 
 class UserLog(models.Model):
