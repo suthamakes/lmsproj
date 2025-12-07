@@ -13,13 +13,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ILSResponseSerializer(serializers.ModelSerializer):
+    # user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
     class Meta:
         model = ILSResponse
-        fields = ["id", "user", "question_number", "answer"]
-        read_only_fields = ["id"]
+        fields = ['id', 'user', 'answers', 'submitted_at']
+        read_only_fields = ["id", "submitted_at"]
 
 
 class LearningStyleScoreSerializer(serializers.ModelSerializer):
+    # user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
     class Meta:
         model = LearningStyleScore
         fields = [
