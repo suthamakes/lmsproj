@@ -13,12 +13,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+load_dotenv(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -45,8 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'courses',
-    'allauth',             
-    'allauth.account',     
+    'allauth',
+    'allauth.account',
     'auth_kit',
     'drf_spectacular',
 ]
@@ -148,7 +150,7 @@ CORS_ALLOWED_ORIGINS = [
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',  #for dev only
+        'rest_framework.renderers.BrowsableAPIRenderer',  # for dev only
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'auth_kit.authentication.JWTCookieAuthentication',
@@ -158,12 +160,9 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-from datetime import timedelta
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),     
-    "ROTATE_REFRESH_TOKENS": True,                  
-    "BLACKLIST_AFTER_ROTATION": True,               
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
-
-
