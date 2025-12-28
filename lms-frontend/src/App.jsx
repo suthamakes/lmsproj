@@ -5,7 +5,7 @@ import LoginPage from './pages/Auth/LoginPage'
 function App() {
   
   return (
-    <div className='w-full'>
+    <div className='w-screen'>
       <LoginPage/>
     </div>
   )
