@@ -2,6 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from dotenv import load_dotenv
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 def main():
@@ -16,6 +24,9 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)
+
+    print(os.getenv('DATABASE_USER'))
+    print(os.getenv('DATABASE_NAME'))
 
 
 if __name__ == '__main__':
