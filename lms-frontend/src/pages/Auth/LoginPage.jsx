@@ -22,7 +22,7 @@ export default function LoginPage() {
                 <div className="w-1/2 p-12 flex flex-col justify-center">
                     <div className="mb-8">
                         <div className="flex items-start gap-3 mb-2">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 via-yellow-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-linear-to-br from-red-500 via-yellow-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                                 KU
                             </div>
                             <div>
