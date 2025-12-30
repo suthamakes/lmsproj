@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 export default function SignupPage() {
-    const [username, setUsername] = useState("")
+    const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -18,7 +18,7 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <div className="w-full h-screen flex items-center justify-center bg-gray-100 p-4">
             <div className="w-3/5 bg-white rounded-xl shadow-2xl flex justify-center">
 
                 {/* Left side - Signup form */}
@@ -42,12 +42,12 @@ export default function SignupPage() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Username
+                                Full Name
                             </label>
                             <input
                                 type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                                 className="w-full px-4 py-3 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                                 required
                             />
