@@ -1,20 +1,18 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 # from courses.models import ContentItem
 
 
 # Create your models here.
-class User(models.Model):
+class User(AbstractUser):
     USER_TYPE_CHOICES = [
         ('student', 'Student'),
         ('teacher', 'Teacher')
     ]
-    username = models.CharField(max_length=150)
-    email = models.CharField(max_length=150)  # email@student.ku.edu.np
-    password = models.CharField(('password'), max_length=128)
-    role = models.CharField(max_length=50, choices=USER_TYPE_CHOICES, default='Student')  # user or teacher
-    department = models.CharField(max_length=100, null=True)  # department necessary if user is teacher
-    date_joined = models.DateField(default=timezone.localdate)
+    role = models.CharField(max_length=50, choices=USER_TYPE_CHOICES, default='student')  # user or teacher
+    department = models.CharField(max_length=100, null=True, blank=True)  # department necessary if user is teacher
     first_sign_up = models.BooleanField(default=False)
 
     def __str__(self):
@@ -26,7 +24,7 @@ class ILSResponse(models.Model):
         ('a', 'A'),
         ('b', 'B')
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     answers = models.JSONField(default=list)  # {"1": "a", "2": "b", ..., "44": "b"}
     submitted_at = models.DateTimeField(default=timezone.now)
 
@@ -35,7 +33,7 @@ class ILSResponse(models.Model):
 
 
 class LearningStyleScore(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     active_score = models.IntegerField()
     reflective_score = models.IntegerField()
     sensing_score = models.IntegerField()
@@ -79,7 +77,7 @@ class UserLog(models.Model):
         ('global', 'Global'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # content_id = models.ForeignKey(ContentItem, on_delete=models.CASCADE)
     content_id = models.ForeignKey("courses.ContentItem", on_delete=models.CASCADE)
     content_style_type = models.CharField(max_length=50, choices=LEARNING_STYLE_CHOICES)

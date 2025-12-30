@@ -1,12 +1,14 @@
 from django.db import models
-from users.models import User
+# from users.models import User
+from django.conf import settings
 
 
 # Create your models here.
 class Course(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    course_created_by = models.ForeignKey(User, on_delete=models.CASCADE)  # only teacher can create
+    course_created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # only teacher can create
+
     created_at = models.DateTimeField()
 
     def __str__(self):
@@ -16,7 +18,7 @@ class Course(models.Model):
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    module_created_by = models.ForeignKey(User, on_delete=models.CASCADE)  # only teacher can create
+    module_created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # only teacher can create
     order_number = models.IntegerField()
 
 
@@ -48,7 +50,7 @@ class ContentItem(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content_type = models.CharField(max_length=50, choices=CONTENT_TYPES)
-    content_created_by = models.ForeignKey(User, on_delete=models.CASCADE)  # only teacher can create
+    content_created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # only teacher can create
     data = models.TextField(null=True, blank=True)
     file_url = models.URLField(max_length=255, blank=True, null=True)
     learning_style_type = models.CharField(max_length=50, choices=LEARNING_STYLE_TYPES)
@@ -72,3 +74,25 @@ class QuizQuestion(models.Model):
     option_c = models.TextField()
     option_d = models.TextField()
     correct_option = models.CharField(max_length=10, choices=OPTIONS_CHOICE)
+
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    course = models.ForeignKey(
+        "Course",
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("student", "course")
+
+    def __str__(self):
+        return f"{self.student} -> {self.course}"
