@@ -33,7 +33,7 @@ export default function SignupPage() {
                                     Kathmandu University
                                 </h2>
                                 <p className="text-sm text-gray-600">
-                                    Learning Management System
+                                    Adaptive Learning Management System
                                 </p>
                             </div>
                         </div>

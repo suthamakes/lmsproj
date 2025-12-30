@@ -27,7 +27,7 @@ export default function LoginPage() {
                             </div>
                             <div>
                                 <h2 className="text-3xl font-bold text-gray-900">Kathmandu University</h2>
-                                <p className="text-sm text-gray-600">Learning Management System</p>
+                                <p className="text-sm text-gray-600">Adaptive Learning Management System</p>
                             </div>
                         </div>
                     </div>
