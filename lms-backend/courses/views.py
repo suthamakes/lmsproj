@@ -1,23 +1,41 @@
 # from django.shortcuts import render
-from rest_framework import viewsets
-from rest_framework.exceptions import PermissionDenied
-from .models import Course, Module, ContentItem, QuizQuestion
+from rest_framework import viewsets, status
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from .models import Course, Module, ContentItem, QuizQuestion, Enrollment
 from .serializers import (
     CourseSerializer,
     ModuleSerializer,
     ContentItemSerializer,
-    QuizQuestionSerializer
+    QuizQuestionSerializer,
+    EnrollmentSerializer
 )
-from .permissions import IsTeacher, IsOwnerTeacher
+from rest_framework.response import Response
+from .permissions import IsTeacher, IsOwnerTeacher, IsStudent
 # from users.models import User
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.is_authenticated:
+            return Course.objects.none()
+
+        if user.role == "teacher":
+            return Course.objects.filter(created_by=user)
+
+        if user.role == "student":
+            return Course.objects.filter(
+                enrollments__student=user,
+                enrollments__is_active=True
+            )
+
+        return Course.objects.none()
+
     def get_permissions(self):
-        if self.action in ["create"]:
+        if self.action == "create":
             return [IsTeacher()]
         if self.action in ["update", "partial_update", "destroy"]:
             return [IsOwnerTeacher()]
@@ -28,76 +46,124 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class ModuleViewSet(viewsets.ModelViewSet):
-    queryset = Module.objects.all()
     serializer_class = ModuleSerializer
 
-    def perform_create(self, serializer):
+    def get_queryset(self):
         user = self.request.user
 
-        if not user.is_authenticated:
-            raise PermissionDenied("You must be logged in.")
+        if user.role == "teacher":
+            return Module.objects.filter(course__created_by=user)
 
-        if user.role != "teacher":
-            raise PermissionDenied("Only teacher can create modules.")
+        if user.role == "student":
+            return Module.objects.filter(
+                course__enrollments__student=user,
+                course__enrollments__is_active=True
+            )
 
-        course_id = self.request.data.get("course")
-        if course_id is None:
-            raise PermissionDenied("course field is required.")
+        return Module.objects.none()
 
-        try:
-            course = Course.objects.get(id=course_id)
-        except Course.DoesNotExist:
-            raise PermissionDenied("Invalid course.")
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsTeacher()]
+        if self.action in ["update", "partial_update", "destroy"]:
+            return [IsOwnerTeacher()]
+        return []
 
-        serializer.save(module_created_by=user, course=course)
+    def perform_create(self, serializer):
+        course = serializer.validated_data["course"]
+
+        if course.created_by != self.request.user:
+            raise PermissionDenied("You do not own this course.")
+
+        serializer.save(created_by=self.request.user)
 
 
 class ContentItemViewSet(viewsets.ModelViewSet):
-    queryset = ContentItem.objects.all()
     serializer_class = ContentItemSerializer
 
-    def perform_create(self, serializer):
+    def get_queryset(self):
         user = self.request.user
 
-        if not user.is_authenticated:
-            raise PermissionDenied("Login required.")
+        if user.role == "teacher":
+            return ContentItem.objects.filter(
+                module__course__created_by=user
+            )
 
-        if user.role != "teacher":
-            raise PermissionDenied("Only teachers can add content.")
+        if user.role == "student":
+            return ContentItem.objects.filter(
+                module__course__enrollments__student=user,
+                module__course__enrollments__is_active=True
+            )
 
-        module_id = self.request.data.get("module")
-        if module_id is None:
-            raise PermissionDenied("module field is required.")
+        return ContentItem.objects.none()
 
-        try:
-            module = Module.objects.get(id=module_id)
-        except Module.DoesNotExist:
-            raise PermissionDenied("Invalid module.")
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsTeacher()]
+        if self.action in ["update", "partial_update", "destroy"]:
+            return [IsOwnerTeacher()]
+        return []
 
-        serializer.save(content_created_by=user, module=module)
+    def perform_create(self, serializer):
+        module = serializer.validated_data["module"]
+
+        if module.course.created_by != self.request.user:
+            raise PermissionDenied("You do not own this course.")
+
+        serializer.save(created_by=self.request.user)
 
 
 class QuizQuestionViewSet(viewsets.ModelViewSet):
-    queryset = QuizQuestion.objects.all()
     serializer_class = QuizQuestionSerializer
 
-    def perform_create(self, serializer):
+    def get_queryset(self):
         user = self.request.user
 
-        if not user.is_authenticated:
-            raise PermissionDenied("Login required.")
+        if user.role == "teacher":
+            return QuizQuestion.objects.filter(
+                content_item__module__course__created_by=user
+            )
 
-        if user.role != "teacher":
-            raise PermissionDenied("Only teachers can create quiz questions.")
+        if user.role == "student":
+            return QuizQuestion.objects.filter(
+                content_item__module__course__enrollments__student=user,
+                content_item__module__course__enrollments__is_active=True
+            )
 
-        content_item_id = self.request.data.get("content_item")
+        return QuizQuestion.objects.none()
 
-        if not content_item_id:
-            raise PermissionDenied("content_item field is required.")
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsTeacher()]
+        if self.action in ["update", "partial_update", "destroy"]:
+            return [IsOwnerTeacher()]
+        return []
 
-        try:
-            content_item = ContentItem.objects.get(id=content_item_id)
-        except ContentItem.DoesNotExist:
-            raise PermissionDenied("Invalid ContentItem ID.")
 
-        serializer.save(content_item=content_item)
+class EnrollmentViewSet(viewsets.ModelViewSet):
+    serializer_class = EnrollmentSerializer
+    permission_classes = [IsStudent]
+
+    def get_queryset(self):
+        return Enrollment.objects.filter(student=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        course_id = request.data.get("course")
+
+        if not course_id:
+            raise ValidationError("course is required")
+
+        course = Course.objects.filter(id=course_id).first()
+        if not course:
+            raise ValidationError("Invalid course")
+
+        enrollment, created = Enrollment.objects.get_or_create(
+            student=request.user,
+            course=course
+        )
+
+        if not created:
+            raise ValidationError("Already enrolled in this course")
+
+        serializer = self.get_serializer(enrollment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
