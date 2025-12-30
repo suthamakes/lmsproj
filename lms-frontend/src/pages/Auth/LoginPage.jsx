@@ -16,8 +16,8 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-            <div className=" bg-white rounded-xl shadow-2xl flex justify-center">
+        <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 p-4">
+            <div className="w-3/5 bg-white rounded-xl shadow-2xl flex justify-center">
                 {/* Left side - Login form */}
                 <div className="w-1/2 p-12 flex flex-col justify-center">
                     <div className="mb-8">
@@ -33,14 +33,21 @@ export default function LoginPage() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Email address
+                        </label>
                         <input
                             type="text"
-                            placeholder="Username or email"
+                            placeholder="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
                             required
                         />
+
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
                         <input
                             type="password"
                             placeholder="Password"
@@ -59,8 +66,8 @@ export default function LoginPage() {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                            Lost password?
+                        <a href="signup" className="text-blue-600 hover:text-blue-700 font-medium">
+                            Are you a new user?
                         </a>
                     </div>
                 </div>
