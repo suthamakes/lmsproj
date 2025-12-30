@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from .models import Course, Module, ContentItem, QuizQuestion
 from users.serializers import UserSerializer
+from .models import Enrollment
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -52,3 +53,19 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
             "option_c", "option_d", "correct_option"
         ]
         read_only_fields = ["id"]
+
+
+class EnrollmentSerializer(serializers.ModelSerializer):
+    course_title = serializers.ReadOnlyField(source="course.title")
+
+    class Meta:
+        model = Enrollment
+        fields = [
+            "id",
+            "course",
+            "course_title",
+            "enrolled_at",
+            "expires_at",
+            "is_active",
+        ]
+        read_only_fields = ["enrolled_at"]

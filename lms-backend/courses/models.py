@@ -72,3 +72,25 @@ class QuizQuestion(models.Model):
     option_c = models.TextField()
     option_d = models.TextField()
     correct_option = models.CharField(max_length=10, choices=OPTIONS_CHOICE)
+
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    course = models.ForeignKey(
+        "Course",
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("student", "course")
+
+    def __str__(self):
+        return f"{self.student} -> {self.course}"
