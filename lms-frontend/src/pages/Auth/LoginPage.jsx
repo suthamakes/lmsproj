@@ -66,7 +66,7 @@ export default function LoginPage() {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="signup" className="text-blue-600 hover:text-blue-700 font-medium">
                             Are you a new user?
                         </a>
                     </div>
