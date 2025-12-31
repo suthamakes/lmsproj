@@ -42,7 +42,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         return []
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(course_created_by=self.request.user)
 
 
 class ModuleViewSet(viewsets.ModelViewSet):
@@ -75,7 +75,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
         if course.created_by != self.request.user:
             raise PermissionDenied("You do not own this course.")
 
-        serializer.save(created_by=self.request.user)
+        serializer.save(course_created_by=self.request.user)
 
 
 class ContentItemViewSet(viewsets.ModelViewSet):
@@ -110,7 +110,7 @@ class ContentItemViewSet(viewsets.ModelViewSet):
         if module.course.created_by != self.request.user:
             raise PermissionDenied("You do not own this course.")
 
-        serializer.save(created_by=self.request.user)
+        serializer.save(course_created_by=self.request.user)
 
 
 class QuizQuestionViewSet(viewsets.ModelViewSet):
